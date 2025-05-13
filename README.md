@@ -14,17 +14,17 @@ cd socket-io-advanced
 ### 3. Install Dependencies
 
 npm install
-# or
+#### or
 yarn install
-# or
+#### or
 pnpm install
-# or
+#### or
 bun install
 
 # Using Bun
 bun run server.mts
 
-# Or using Node (make sure you have ts-node installed)
+#### Or using Node (make sure you have ts-node installed)
 npx ts-node server.mts
 
 ### 3. Run the Socket Server
@@ -32,15 +32,15 @@ npx ts-node server.mts
 # Using Bun
 bun run server.mts
 
-# Or using Node (make sure you have ts-node installed)
+#### Or using Node (make sure you have ts-node installed)
 npx ts-node server.mts
 
 ### 4. Start the Next.js Development Server
 
 npm run dev
-# or
+#### or
 yarn dev
-# or
+#### or
 pnpm dev
-# or
+#### or
 bun dev
