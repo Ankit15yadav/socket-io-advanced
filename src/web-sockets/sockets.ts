@@ -29,7 +29,7 @@ class SocketService {
             socket.on('join-group', async ({ groupId, userId }: { groupId: string, userId: string }) => {
                 socket.join(groupId);
                 console.log(`user ${userId} joined the group ${groupId}`)
-                socket.emit('user-count', {
+                io.in(groupId).emit('user-count', {
                     count: io.sockets.adapter.rooms.get(groupId)?.size
                 })
                 // console.log(io.sockets.adapter.rooms.get(groupId)?.size)
