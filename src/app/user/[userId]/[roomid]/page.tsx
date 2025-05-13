@@ -7,7 +7,7 @@ type Props = {}
 // let typingTimeout: NodeJS.Timeout;
 
 const page = (props: Props) => {
-    const { messages, sendMessages, isTyping, userTyping, stoppedTyping } = useSocket()
+    const { messages, sendMessages, isTyping, userTyping, stoppedTyping, leaveGroup, userCount } = useSocket()
     const [message, setMessage] = useState<string>('');
     const [typing, setTyping] = useState<boolean>(false)
     const typingTimeOutRef = useRef<NodeJS.Timeout | null>(null)
@@ -38,6 +38,7 @@ const page = (props: Props) => {
     useEffect(() => {
         // on unmount clear the timer if it is there to prevent memory leak
         return () => {
+            // leaveGroup(roomId)
             if (typingTimeOutRef.current) {
                 clearTimeout(typingTimeOutRef.current)
             }
@@ -62,6 +63,9 @@ const page = (props: Props) => {
                 >
                     Send
                 </button>
+                <div>
+                    User count : {userCount}
+                </div>
             </div>
 
             <h1>Messages :</h1>

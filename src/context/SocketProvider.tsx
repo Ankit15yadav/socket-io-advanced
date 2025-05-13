@@ -16,8 +16,10 @@ interface SocketContext {
     messages: Message[],
     sendMessages: (message: string, groupId: string) => any
     joinGroup: (groupId: string, userId: string) => any
+    leaveGroup: (groupId: string) => void
     isTyping: (groupId: string, userId: string) => void
     stoppedTyping: (groupId: string, userId: string) => void
+    userCount: number
     userTyping: string | null
 
 }
@@ -38,6 +40,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [socket, setSocket] = useState<Socket>()
     const [messages, setMessage] = useState<Message[]>([]);
     const [userTyping, setUserTyping] = useState<string | null>(null)
+    const [userCount, setUserCount] = useState<number | 0>(0)
 
     const sendMessages = (msg: string, groupId: string) => {
 
@@ -70,6 +73,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         }
     }
 
+    const leaveGroup = (groupId: string) => {
+        if (socket) {
+            socket.emit('leave-group', { groupId })
+        }
+    }
+
     useEffect(() => {
         const _socket = io('http://localhost:8000')
 
@@ -88,6 +97,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             setUserTyping(null)
         })
 
+        _socket.on('user-count', ({ count }) => {
+            setUserCount(count)
+        })
+
         setSocket(_socket);
 
         return () => {
@@ -98,7 +111,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
 
     return (
-        <socketContext.Provider value={{ messages, sendMessages, joinGroup, isTyping, userTyping, stoppedTyping }}>
+        <socketContext.Provider value={{ messages, sendMessages, joinGroup, isTyping, userTyping, stoppedTyping, leaveGroup, userCount }}>
             {children}
         </socketContext.Provider>
     )
