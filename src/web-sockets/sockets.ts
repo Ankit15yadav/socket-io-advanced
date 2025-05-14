@@ -32,8 +32,11 @@ class SocketService {
                 io.in(groupId).emit('user-count', {
                     count: io.sockets.adapter.rooms.get(groupId)?.size
                 })
-                // console.log(io.sockets.adapter.rooms.get(groupId)?.size)
-
+                socket.on('disconnect', () => {
+                    io.in(groupId).emit('user-count', {
+                        count: io.sockets.adapter.rooms.get(groupId)?.size
+                    })
+                })
             })
 
             socket.on('leave-group', ({ groupId }: { groupId: string }) => {
@@ -42,7 +45,7 @@ class SocketService {
             })
 
             socket.on('message', ({ message, groupId }: { message: string, groupId: string }) => {
-                console.log(`new message received -> ${message} for group ${groupId}`)
+                // console.log(`new message received -> ${message} for group ${groupId}`)
                 // io.to(groupId).emit(message)
                 io.in(groupId).emit('message', {
                     message

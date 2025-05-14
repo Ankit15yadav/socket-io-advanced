@@ -15,7 +15,7 @@ const UserGroup = (props: Props) => {
     const [room, setRoom] = useState<string>('')
 
     const handleJoin = () => {
-        joinGroup(room, userId as string);
+        // joinGroup(room, userId as string);
         router.push(`/user/${userId}/${room as string}`)
         // setRoom('')
 

@@ -1,7 +1,6 @@
 'use client'
 
-import { group } from 'console'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { Socket, io } from 'socket.io-client'
 
 interface SocketProviderProps {
@@ -19,7 +18,7 @@ interface SocketContext {
     leaveGroup: (groupId: string) => void
     isTyping: (groupId: string, userId: string) => void
     stoppedTyping: (groupId: string, userId: string) => void
-    userCount: number
+    userCount: number | 0
     userTyping: string | null
 
 }
@@ -41,23 +40,24 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [messages, setMessage] = useState<Message[]>([]);
     const [userTyping, setUserTyping] = useState<string | null>(null)
     const [userCount, setUserCount] = useState<number | 0>(0)
+    // const usercountRef = useRef<number | 0>(0)
+    const groupIdRef = useRef<string | null>(null);
+    const userIdRef = useRef<string | null>(null);
 
     const sendMessages = (msg: string, groupId: string) => {
 
         if (socket) {
             socket?.emit('message', { message: msg, groupId })
         }
-
-        // setMessage((prev) => [
-        //     ...prev,
-        //     { content: msg }
-        // ])
     }
 
     const joinGroup = (groupId: string, userId: string) => {
 
-        if (socket) {
+        groupIdRef.current = groupId;
+        userIdRef.current = userId;
+        if (socket?.connected) {
             socket.emit('join-group', { groupId, userId });
+
         }
     }
 
@@ -84,6 +84,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
         _socket.on('connect', () => {
             console.log('connected')
+
+            if (userIdRef.current && groupIdRef.current) {
+                // console.log(userIdRef.current, groupIdRef.current, 'is called')
+                _socket.emit('join-group', {
+                    groupId: groupIdRef.current,
+                    userId: userIdRef.current,
+                })
+            }
         })
 
         _socket.on('message', ({ message }) => {
@@ -99,6 +107,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
         _socket.on('user-count', ({ count }) => {
             setUserCount(count)
+            // usercountRef.current = count;
         })
 
         setSocket(_socket);
