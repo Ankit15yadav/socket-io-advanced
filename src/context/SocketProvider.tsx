@@ -20,6 +20,7 @@ interface SocketContext {
     stoppedTyping: (groupId: string, userId: string) => void
     userCount: number | 0
     userTyping: string | null
+    ActiveUser: Array<string>;
 
 }
 
@@ -40,6 +41,9 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [messages, setMessage] = useState<Message[]>([]);
     const [userTyping, setUserTyping] = useState<string | null>(null)
     const [userCount, setUserCount] = useState<number | 0>(0)
+    const [ActiveUser, setActiveUser] = useState<Array<string>>(new Array())
+
+
     // const usercountRef = useRef<number | 0>(0)
     const groupIdRef = useRef<string | null>(null);
     const userIdRef = useRef<string | null>(null);
@@ -57,6 +61,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         userIdRef.current = userId;
         if (socket?.connected) {
             socket.emit('join-group', { groupId, userId });
+            socket.emit('user-add', userId)
+
 
         }
     }
@@ -110,6 +116,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             // usercountRef.current = count;
         })
 
+        _socket.on('online-user', (userActive: Array<string>) => {
+            setActiveUser(userActive);
+        })
+
+
         setSocket(_socket);
 
         return () => {
@@ -120,7 +131,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
 
     return (
-        <socketContext.Provider value={{ messages, sendMessages, joinGroup, isTyping, userTyping, stoppedTyping, leaveGroup, userCount }}>
+        <socketContext.Provider value={{ messages, sendMessages, joinGroup, isTyping, userTyping, stoppedTyping, leaveGroup, userCount, ActiveUser }}>
             {children}
         </socketContext.Provider>
     )

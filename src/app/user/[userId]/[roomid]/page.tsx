@@ -7,9 +7,8 @@ type Props = {}
 // let typingTimeout: NodeJS.Timeout;
 
 const page = (props: Props) => {
-    const { messages, sendMessages, isTyping, userTyping, stoppedTyping, joinGroup, userCount } = useSocket()
+    const { messages, sendMessages, isTyping, userTyping, stoppedTyping, joinGroup, userCount, ActiveUser } = useSocket()
     const [message, setMessage] = useState<string>('');
-    const [typing, setTyping] = useState<boolean>(false)
     const typingTimeOutRef = useRef<NodeJS.Timeout | null>(null)
 
     const { roomid, userId } = useParams();
@@ -93,7 +92,19 @@ const page = (props: Props) => {
             {
                 userTyping && (`${userTyping} is typing...`)
             }
+
+            <div className='mt-3'>
+                {
+                    ActiveUser.map((user, index) => (
+                        <p key={index}>
+                            {user} is online
+                        </p>
+                    ))
+                }
+            </div>
+
         </div>
+
     )
 }
 

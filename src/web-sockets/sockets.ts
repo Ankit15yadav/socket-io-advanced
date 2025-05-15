@@ -1,4 +1,3 @@
-import { group } from 'console'
 import { Server } from 'socket.io'
 
 class SocketService {
@@ -21,21 +20,33 @@ class SocketService {
     public initListener() {
         const io = this._io;
         console.log("Server is listening");
+        let userActive = new Array<string>()
+
 
         io.on("connect", (socket) => {
+            // store all the joined group of the user.
+            const joinedGroups = new Set<string>();
+
             console.log(`new socket connected with id ${socket?.id}`)
+
+            // user is connected mark the user as online
+            socket.on('user-add', (userId: string) => {
+                socket.data.userId = userId;
+                // if user is not present then only add user
+                if (!userActive.includes(userId)) {
+                    userActive.push(userId);
+                }
+
+                io.emit('online-user', userActive)
+            })
 
 
             socket.on('join-group', async ({ groupId, userId }: { groupId: string, userId: string }) => {
                 socket.join(groupId);
-                console.log(`user ${userId} joined the group ${groupId}`)
+                joinedGroups.add(groupId);
+                // console.log(`user ${userId} joined the group ${groupId}`)
                 io.in(groupId).emit('user-count', {
                     count: io.sockets.adapter.rooms.get(groupId)?.size
-                })
-                socket.on('disconnect', () => {
-                    io.in(groupId).emit('user-count', {
-                        count: io.sockets.adapter.rooms.get(groupId)?.size
-                    })
                 })
             })
 
@@ -46,7 +57,6 @@ class SocketService {
 
             socket.on('message', ({ message, groupId }: { message: string, groupId: string }) => {
                 // console.log(`new message received -> ${message} for group ${groupId}`)
-                // io.to(groupId).emit(message)
                 io.in(groupId).emit('message', {
                     message
                 })
@@ -62,6 +72,16 @@ class SocketService {
 
             socket.on('disconnect', () => {
                 console.log(`socket with id : ${socket.id} disconnected`)
+                if (socket.data.userId) {
+                    userActive = userActive?.filter((user) => user !== socket.data.userId)
+                    io.emit('online-user', userActive)
+                }
+
+                for (const groupId of joinedGroups) {
+                    io.in(groupId).emit('user-count', {
+                        count: io.sockets.adapter.rooms.get(groupId)?.size ?? 0,
+                    });
+                }
             })
         })
     }
