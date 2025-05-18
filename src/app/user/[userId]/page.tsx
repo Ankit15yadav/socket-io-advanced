@@ -36,6 +36,12 @@ const UserGroup = (props: Props) => {
             >
                 Join Group
             </button>
+            <button
+                onClick={() => router.push('/testing')}
+                className='cursor-pointer border px-2 py-1 rounded-lg w-fit'
+            >
+                Testing
+            </button>
         </div>
     )
 }

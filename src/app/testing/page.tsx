@@ -1,58 +1,70 @@
 'use client'
-import { useSocket } from '@/context/SocketProvider'
-import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useState } from 'react';
+import { db } from '../../../server/db';
 
-type Room = {
-    id: string
-    name: string
+const suggestions = [
+    "artificial intelligence",
+    "artificial insemination",
+    "article 370",
+    "artist",
+    "art",
+    "ankit",
+    "parth bansal",
+    "prakhar"
+];
+
+function getPrediction(input: string, suggestions: string[]) {
+    if (!input) return '';
+    const match = suggestions.find(word => word.toLowerCase().startsWith(input.toLowerCase()));
+    if (!match) return '';
+    return match.slice(input.length); // return only the predicted part
 }
 
-const rooms: Room[] = [
-    {
-        id: '1',
-        name: 'ankit',
-    },
-    {
-        id: '2',
-        name: 'parth',
-    },
-    {
-        id: '3',
-        name: 'prakhar',
-    },
-    {
-        id: '4',
-        name: 'sameer'
-    },
-]
 
-const TestingPage = () => {
+const GoogleStyleSearch = () => {
+    const [input, setInput] = useState('');
+    const prediction = getPrediction(input, suggestions);
 
-    const { joinGroup } = useSocket()
-    const router = useRouter()
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Tab' && prediction) {
+            e.preventDefault();
+            setInput(prev => prev + prediction);
+        }
+    };
 
-    const handleJoinGroup = (roomId: string, userId: string) => {
-        router.push(`/user/${userId}/${roomId}`)
-        // joinGroup(roomId, userId);
-    }
 
     return (
-        <div>
-            {
-                rooms.map((room) => (
-                    <div key={room.id}
-                        onClick={() => handleJoinGroup(room.id, room.id)}
-                        className='h-10 border max-w-xs mt-3 ml-4 rounded-xl bg-yellow-100 cursor-pointer'
-                    >
-                        <p className='p-2 text-center text-md uppercase'>
-                            {room.name}
-                        </p>
-                    </div>
-                ))
-            }
-        </div>
-    )
-}
+        <div
+            className='border '
+            style={{ position: 'relative', width: '100%', maxWidth: 500 }}>
+            {/* Ghost text */}
+            <input
+                value={input + prediction}
+                style={{
+                    position: 'absolute',
+                    color: '#ccc',
+                    pointerEvents: 'none',
+                    background: 'transparent',
+                    width: '80%',
+                    zIndex: 0,
+                }}
+                readOnly
+            />
 
-export default TestingPage
+            {/* Actual input */}
+            <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                style={{
+                    position: 'relative',
+                    background: 'transparent',
+                    zIndex: 1,
+                    width: '100%',
+                }}
+            />
+        </div>
+    );
+};
+
+export default GoogleStyleSearch
