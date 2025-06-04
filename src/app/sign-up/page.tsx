@@ -32,7 +32,7 @@ const SignInPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
 
         e.preventDefault()
-        if (!formData.username?.trim() || !formData.password?.trim()) {
+        if (!formData.username?.trim() || !formData.password?.trim() || !formData.email?.trim()) {
             toast.error("All fields are required")
         }
 

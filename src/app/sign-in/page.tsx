@@ -2,6 +2,8 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useUser } from '@/context/userprovider'
+import { StoreUserLocalInfo } from '@/lib/store-user-info'
 import { SignIn } from '@/types/auth'
 import { Eye, EyeClosedIcon, Loader, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -13,6 +15,7 @@ const SignInPage = () => {
 
 
     const router = useRouter();
+    const { setUserInfo } = useUser()
 
     const [formData, setFormData] = useState<SignIn>({
         password: '',
@@ -52,19 +55,30 @@ const SignInPage = () => {
             const data = await response.json()
             // console.log(data)
 
-            if (response.ok) {
-                toast.success("Login successfull")
-                // console.log(data?.user)
-                // set the user email in the local
-                localStorage.setItem("user-email", data?.user?.email)
-                router.replace("/")
-            }
 
-            else if (!response.ok) {
+
+            if (!response.ok) {
                 toast.error(`${data.message}`)
             }
 
-            return;
+            toast.success("Login successfull")
+            // console.log(data?.user)
+            // set the user email in the local
+            localStorage.setItem("user-email", data?.user?.email)
+
+            console.log(data?.user)
+
+            const user = {
+                id: data?.user?.id as string,
+                userName: data?.user?.userName as string,
+                status: data?.user?.Status as string,
+                email: data?.user?.email as string
+            }
+
+            StoreUserLocalInfo(user)
+            setUserInfo()
+            router.replace("/")
+
 
         } catch (error) {
             console.log('error')
