@@ -3,3 +3,10 @@ export interface SignIn {
     password: string | undefined
     loading?: boolean
 }
+
+export interface SignUp {
+    username: string | undefined
+    password: string | undefined
+    email: string | undefined
+    loading?: boolean
+}

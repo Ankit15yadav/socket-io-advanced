@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { SignIn } from '@/types/auth'
+import { SignIn, SignUp } from '@/types/auth'
 import { Eye, EyeClosedIcon, Loader, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
@@ -11,12 +11,12 @@ import { toast } from 'sonner'
 
 const SignInPage = () => {
 
+    const router = useRouter()
 
-    const router = useRouter();
-
-    const [formData, setFormData] = useState<SignIn>({
+    const [formData, setFormData] = useState<SignUp>({
         password: '',
         username: '',
+        email: '',
         loading: false
     })
     const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -41,7 +41,7 @@ const SignInPage = () => {
                 ...formData,
                 loading: true
             })
-            const response = await fetch('/login', {
+            const response = await fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -53,18 +53,13 @@ const SignInPage = () => {
             // console.log(data)
 
             if (response.ok) {
-                toast.success("Login successfull")
-                // console.log(data?.user)
-                // set the user email in the local
-                localStorage.setItem("user-email", data?.user?.email)
-                router.replace("/")
+                toast.success("Registered successfully")
+                router.replace("/sign-in")
             }
 
             else if (!response.ok) {
                 toast.error(`${data.message}`)
             }
-
-            return;
 
         } catch (error) {
             console.log('error')
@@ -85,24 +80,36 @@ const SignInPage = () => {
 
     return (
         <div
-            className=' w-full min-h-screen flex flex-col items-center justify-center'
+            className='w-full min-h-screen flex flex-col items-center justify-center'
         >
             {/*  sign in form */}
-            <h1 className='font-medium text-lg mb-6'>
-                Welcome to Chat app
+            <h1 className='font-medium text-xl mb-6'>
+                Register to Chat app
             </h1>
             <form className='min-w-sm flex flex-col gap-y-4'
                 onSubmit={handleSubmit}
             >
                 <div className='flex flex-col gap-y-2'>
                     <Label htmlFor='username'>
-                        Email
+                        Username
                     </Label>
                     <Input
                         id='username'
                         name='username'
-                        type='email'
+                        type='text'
                         value={formData.username}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div className='flex flex-col gap-y-2'>
+                    <Label htmlFor='email'>
+                        Email
+                    </Label>
+                    <Input
+                        id='email'
+                        name='email'
+                        type='email'
+                        value={formData.email}
                         onChange={handleInputChange}
                     />
                 </div>
@@ -149,7 +156,7 @@ const SignInPage = () => {
                     disabled={!formData.password || !formData.username}
                 >
                     {
-                        !formData?.loading ? ('Login')
+                        !formData?.loading ? ('Register')
                             :
                             (
                                 <div className='flex gap-x-3 items-center'>
